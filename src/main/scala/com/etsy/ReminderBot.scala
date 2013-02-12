@@ -17,7 +17,7 @@ class ReminderBot(name:String, channels:List[String]) extends PircBot() with Act
 
   /**
    * Upon connecting to the host, join a few channels
-   */ 
+   */
   override def onConnect() : Unit =
     channels.foreach {
       channel:String =>
@@ -67,8 +67,8 @@ class ReminderBot(name:String, channels:List[String]) extends PircBot() with Act
     loop {
       react {
         case reminder:Reminder =>
-          val message:String = 
-            reminder.senderNick + " said: " + reminder.message;
+          val message:String =
+            reminder.message + ", said " + reminder.senderNick;
           sendMessage(reminder.channel, message);
           reminder.delete();
       }
@@ -89,7 +89,7 @@ object ReminderBot {
   def apply(name:String, host:String, port:Int, channels:List[String], password:Option[String]) : ReminderBot = {
     val reminderBot:ReminderBot = new ReminderBot(name, channels)
     password match {
-      case Some(password:String) => 
+      case Some(password:String) =>
         reminderBot.connect(host, port, password)
       case _ =>
         reminderBot.connect(host, port);
