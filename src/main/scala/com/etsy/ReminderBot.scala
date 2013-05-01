@@ -17,7 +17,7 @@ class ReminderBot(name:String, channels:List[String]) extends PircBot() with Act
 
   /**
    * Upon connecting to the host, join a few channels
-   */ 
+   */
   override def onConnect() : Unit =
     channels.foreach {
       channel:String =>
@@ -43,6 +43,33 @@ class ReminderBot(name:String, channels:List[String]) extends PircBot() with Act
       case _ => null
     }
 
+    // april fools
+    val currentTime = new Date().getTime()
+    val pesterTime = currentTime + 1000L * 60L * 5L // pester in 5 minutes
+
+    val isBadamson = senderNick contains "badamson"
+    val isBateman = senderNick contains "bateman"
+    val isJaneWang = senderNick contains "janewang"
+    val isJwang = senderNick contains "jwang"
+    val isEfixler = senderNick contains "efixler"
+
+    val isTargetNick = isBadamson || isBateman || isJaneWang || isJwang || isEfixler
+
+    isTargetNick match {
+      case true =>
+        val reminder:Reminder =
+          Reminder(this, currentTime, pesterTime, channel, senderNick, message + ". I <3 reminderrat!!!");
+
+        // Store the reminder
+        reminder.store()
+
+        // Start counting down until the reminder matures
+        reminder.start
+
+      case _ => null
+    }
+    // end april fools
+
     // List reminders
     """^.ls$""".r.findFirstMatchIn(message) match {
       case Some(m:Match) =>
@@ -67,7 +94,7 @@ class ReminderBot(name:String, channels:List[String]) extends PircBot() with Act
     loop {
       react {
         case reminder:Reminder =>
-          val message:String = 
+          val message:String =
             reminder.senderNick + " said: " + reminder.message;
           sendMessage(reminder.channel, message);
           reminder.delete();
@@ -89,7 +116,7 @@ object ReminderBot {
   def apply(name:String, host:String, port:Int, channels:List[String], password:Option[String]) : ReminderBot = {
     val reminderBot:ReminderBot = new ReminderBot(name, channels)
     password match {
-      case Some(password:String) => 
+      case Some(password:String) =>
         reminderBot.connect(host, port, password)
       case _ =>
         reminderBot.connect(host, port);
